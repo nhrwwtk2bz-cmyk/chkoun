@@ -10,6 +10,7 @@ const CATEGORIES = [
   { id: 'school',  name: 'Fac, Cours & Khedma',   emoji: '🎓' },
   { id: 'savage',  name: 'Savage',                emoji: '🔥' },
   { id: 'tounsi',  name: 'Tounsi 100%',           emoji: '🇹🇳' },
+  { id: 'travel',  name: 'Safar & Voyage',        emoji: '✈️' },
 ];
 
 const RAW = {
@@ -273,6 +274,18 @@ const RAW = {
     'Chkoun akther we7ed ye3mel resolutions kol 3am w yenssahom f janvier?',
     'Chkoun akther we7ed ye7eb el chorba w yfaddelha 3la kol 7aja?',
     'Chkoun akther we7ed howa "mol el 7ouma" w ye3ref kol ness?',
+  ],
+  travel: [
+    'Chkoun akther we7ed fel groupe ynajem ydhaya3 el groupe fi bled ma ya3rfouhech?',
+    'Chkoun akther we7ed ynajem ysefer w yrajja3 9bal el wa9t?',
+    'Chkoun akther we7ed ykasser el programme kemel 5ater ma 3ajbetouch el blasa?',
+    'Chkoun akther we7ed ynajem yet3arek m3a we7ed men groupe fi voyage?',
+    'Chkoun akther we7ed ynajem ysefer wa7dou w yet3arref 3la barcha 3bed?',
+    'Chkoun akther we7ed ynajem ydhaya3 passport wala billet?',
+    'Chkoun akther we7ed ya5ou barcha 7ajet m3ah w fel lekher ma yesta3mel 7atta chay?',
+    'Chkoun akther we7ed ynajem yosrf flousou lkol fi nharin?',
+    'Chkoun akther we7ed y7eb ya3mel programme kol chay w bel wa9t?',
+    'Chkoun akther we7ed ynajem y3ich fi bled o5ra w ma yrajja3ch?',
   ],
 };
 
