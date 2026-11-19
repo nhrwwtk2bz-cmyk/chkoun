@@ -13,6 +13,7 @@ const CATEGORIES = [
   { id: 'travel',  name: 'Safar & Voyage',        emoji: '✈️' },
   { id: 'job',     name: 'Job',                   emoji: '💼' },
   { id: 'food',    name: 'Food',                  emoji: '🍕' },
+  { id: 'style',   name: 'Style',                 emoji: '👗' },
 ];
 
 const RAW = {
@@ -44,7 +45,6 @@ const RAW = {
     'Chkoun akther we7ed yodkhol lel groupe w ye9ellek "lola" w yekhrej?',
     'Chkoun akther we7ed yo9a3 fi chari3 w yodh7ek ba3dha?',
     'Chkoun akther we7ed yekhaf men el 9ottous akther men el ness?',
-    'Chkoun akther we7ed ya3mel el selfie ta3ba 20 marra 9bal ma yeb3eth wa7da?',
     'Chkoun akther we7ed yfahem el nokta ba3d sa3a w yodh7ek wa7du?',
     'Chkoun akther we7ed yosrokh 9odem 9ottous sghir w yekhlaa el kol?',
     'Who is the funniest person in the group?',
@@ -146,7 +146,6 @@ const RAW = {
     'Chkoun akther we7ed dima mafloussou fi akher el chhar?',
     'Chkoun akther we7ed yekhdhi flous w ma yarja3hom?',
     'Chkoun akther we7ed ynajem yfarrek flousou 9bal el 15 men chhar?',
-    'Chkoun akther we7ed y7eb el marques w howa ma3andouch flous?',
     'Chkoun akther we7ed ynajem y3ich bel 5dem 3al telifoun?',
     'Chkoun akther we7ed yechri 7aja ghir li fi promo w ma yest7a9ha ch?',
     'Chkoun akther we7ed yfakker yodkhol business w ykhsar fih?',
@@ -324,6 +323,28 @@ const RAW = {
     'Who would choose dessert instead of the main meal?',
     'Who would order the most expensive thing on the menu?',
     'Who would survive the longest on an island with only one type of food?',
+  ],
+  style: [
+    'Chkoun akther we7ed fel groupe y9a3ed se3a 9odem el mraya 9bal ma yo5rej?',
+    'Chkoun akther we7ed ychri 7ajet ghalyin w ba3d y9oul ma 3andich flous?',
+    'Chkoun akther we7ed y7eb ykoun dima labes a7sen wa7ed fel groupe?',
+    'Chkoun akther we7ed ynajem ybaddel lebstou 5 marrat 9bal ma yo5rej?',
+    'Chkoun akther we7ed meshi fibelou brou7ou fashion icon?',
+    'Chkoun akther we7ed yetsare3 3la coupe jdida w ba3d yendem?',
+    'Chkoun akther we7ed y7eb y3ti ra2you fi lebset 3bed e5rin?',
+    'Chkoun akther we7ed yji dima lel groupe b nafs el lebsa?',
+    'Chkoun akther we7ed y9oul "ma 3andich chnowa nelbes" w 3andou placard m3abbi?',
+    'Chkoun akther we7ed ya3ref yelbes fel groupe?',
+    'Who would spend the most money just to look good?',
+    'Who would become a fashion influencer?',
+    'Who would wear something strange and still feel confident?',
+    'Who would take 100 selfies before choosing one?',
+    'Who would be the first to follow a new fashion trend?',
+    'Who would look completely different with a new hairstyle?',
+    'Who would take the longest to get ready for a party?',
+    'Who would wear sunglasses even when there is no sun?',
+    'Who would accidentally wear two different shoes?',
+    'Who would be the best dressed person at a big event?',
   ],
 };
 
