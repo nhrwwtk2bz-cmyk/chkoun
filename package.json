@@ -1,0 +1,10 @@
+{
+  "name": "chkoun-akther-wa7ed",
+  "version": "1.0.0",
+  "description": "Chkoun Akther Wa7ed? - jeu multijoueur en Derja tounsi (temps réel, vote anonyme)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node test/sim.js" },
+  "engines": { "node": ">=18" },
+  "license": "MIT",
+  "private": true
+}
