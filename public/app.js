@@ -14,6 +14,12 @@ function h(tag, a, ...kids) {
   for (const kid of kids.flat(Infinity)) { if (kid == null || kid === false) continue; e.append(kid.nodeType ? kid : document.createTextNode(String(kid))); }
   return e;
 }
+
+// Avatars are picture ids like "a3" (served from /avatars/a3.jpg); anything else (old emoji) is shown as text.
+const isAvatarId = (a) => /^a\d{1,2}$/.test(a || '');
+function Av(a) {
+  return isAvatarId(a) ? h('img', { class: 'avimg', src: `/avatars/${a}.jpg`, alt: '', draggable: 'false', decoding: 'async' }) : (a || '');
+}
 const store = {
   get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (_) { return null; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} },
@@ -249,10 +255,10 @@ function render() {
 function buildHome() {
   const params = new URLSearchParams(location.search);
   const prefill = (params.get('r') || '').toUpperCase().slice(0, 6);
-  let avatar = S.profile.avatar || S.info.avatars[Math.floor(Math.random() * S.info.avatars.length)];
+  let avatar = S.info.avatars.includes(S.profile.avatar) ? S.profile.avatar : S.info.avatars[Math.floor(Math.random() * S.info.avatars.length)];
   const name = h('input', { class: 'inp', placeholder: 'Esmek (max 14)', maxlength: 14, value: S.profile.name || '', autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done' });
-  const grid = h('div', { class: 'avatars' }, S.info.avatars.map((a) => h('button', { type: 'button', class: 'av' + (a === avatar ? ' on' : ''),
-    onclick: () => { avatar = a; [...grid.children].forEach((c) => c.classList.toggle('on', c.textContent === a)); Sfx.unlock(); Sfx.pop(); } }, a)));
+  const grid = h('div', { class: 'avatars' }, S.info.avatars.map((a) => h('button', { type: 'button', class: 'av' + (a === avatar ? ' on' : ''), 'data-a': a, 'aria-label': 'Avatar',
+    onclick: () => { avatar = a; [...grid.children].forEach((c) => c.classList.toggle('on', c.dataset.a === a)); Sfx.unlock(); Sfx.pop(); } }, Av(a))));
   const code = h('input', { class: 'inp code', placeholder: 'CODE', maxlength: 6, value: prefill, autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', enterkeyhint: 'go' });
   code.addEventListener('input', () => { code.value = code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
   const need = () => {
@@ -315,7 +321,7 @@ function buildLobby() {
       return h('div', { class: `pl${p.connected ? '' : ' off'}${v.you && p.id === v.you.id ? ' me' : ''}${isNew ? ' pop' : ''}` },
         p.isHost ? h('span', { class: 'tag' }, '👑') : null,
         isHost && !p.isHost ? h('button', { class: 'x', type: 'button', title: 'Tla33ou', onclick: () => { if (confirm(`Tla33 ${p.name}?`)) act('kick', { id: p.id }); } }, '✕') : null,
-        h('span', { class: 'a' }, p.avatar), h('span', { class: 'n' }, p.name));
+        h('span', { class: 'a' }, Av(p.avatar)), h('span', { class: 'n' }, p.name));
     }));
     // settings
     const s = v.settings, canEdit = isHost;
@@ -364,7 +370,7 @@ function buildVoting() {
   function votedDots(v) {
     const voted = new Set(v.round.voted);
     return h('div', { class: 'dots' }, v.round.candidates.map((id) => { const p = P(id); if (!p) return null; const ok = voted.has(id);
-      return h('div', { class: `dot ${ok ? 'ok' : p.connected ? 'pend' : 'gone'}`, title: p.name }, p.avatar); }));
+      return h('div', { class: `dot ${ok ? 'ok' : p.connected ? 'pend' : 'gone'}`, title: p.name }, Av(p.avatar)); }));
   }
   function update(v) {
     const r = v.round, you = r.you, voters = r.candidates.length, done = r.voted.length;
@@ -378,7 +384,7 @@ function buildVoting() {
           const p = P(id); if (!p) return;
           grid.append(h('button', { type: 'button', class: `cand${p.connected ? '' : ' off'}`, style: `animation-delay:${i * 40}ms`, 'data-id': id,
             onclick: () => { S.selected = id; [...grid.children].forEach((c) => c.classList.toggle('sel', c.dataset.id === id)); Sfx.pop(); vibe(8); updateConfirm(); } },
-            h('span', { class: 'a' }, p.avatar), h('span', { class: 'n' }, p.name)));
+            h('span', { class: 'a' }, Av(p.avatar)), h('span', { class: 'n' }, p.name)));
         });
         area.replaceChildren(grid);
         updateConfirm();
@@ -388,7 +394,7 @@ function buildVoting() {
         mode = 'wait'; confirmBar.replaceChildren();
         const mine = P(you.vote);
         area.replaceChildren(h('div', { class: 'card wait', 'data-wait': '1' }, h('div', { class: 'big' }, '🔒'), h('h3', null, 'Votitek tsajjlet!'),
-          mine ? h('p', { class: 'muted' }, `Votit 3la ${mine.avatar} ${mine.name} — ma7ad ya3ref 😉`) : null,
+          mine ? h('p', { class: 'muted' }, ['Votit 3la ', Av(mine.avatar), ` ${mine.name} — ma7ad ya3ref 😉`]) : null,
           h('div', { 'data-dots': '1' }), h('p', { class: 'muted', 'data-count': '1' })));
       }
     } else if (want === 'late') {
@@ -414,7 +420,7 @@ function buildVoting() {
     confirmBar.replaceChildren(h('button', { class: 'btn', type: 'button', disabled: !sel, onclick: async () => {
       if (!S.selected) return; const target = S.selected; Sfx.lock(); vibe(20);
       const ok = await act('vote', { target }); if (!ok) return; } },
-      sel ? `🔒 Confirmi: ${sel.avatar} ${sel.name}` : 'Ekhtar we7ed 👆'));
+      sel ? ['🔒 Confirmi: ', Av(sel.avatar), ` ${sel.name}`] : 'Ekhtar we7ed 👆'));
   }
   const el = h('div', { class: 'screen' }, roundHeader(v0), banner, qcard, area, confirmBar, extra);
   return { el, update };
@@ -431,7 +437,7 @@ function buildReveal() {
   const rows = ids.map((id, i) => {
     const p = P(id), c = res.counts[id] || 0;
     return h('div', { class: `rr${win.has(id) ? ' win' : ''}`, style: `animation-delay:${i * 60}ms` },
-      h('span', { class: 'a' }, p.avatar),
+      h('span', { class: 'a' }, Av(p.avatar)),
       h('div', { class: 'mid' }, h('div', { class: 'nm' }, p.name, you && you.participant && p.id === v.you.id ? h('small', null, ' (enta)') : null), h('div', { class: 'track' }, h('div', { class: 'fill', 'data-w': max ? Math.round(c / max * 100) : 0 }))),
       h('span', { class: 'cnt' }, String(c)));
   });
@@ -448,7 +454,7 @@ function buildReveal() {
       const tie = names.length > 1, unanimous = !tie && res.total >= 3 && res.counts[names[0].id] === res.total;
       const pts = res.points[names[0].id] || 0;
       el = h('div', { class: 'verdict' },
-        h('div', { class: 'big' }, names.map((p) => h('span', null, p.avatar))),
+        h('div', { class: 'big' }, names.map((p) => h('span', null, Av(p.avatar)))),
         h('h2', null, tie ? 'Ta3adol! 🤝 ' + names.map((p) => p.name).join(' + ') : names[0].name + ' 👑'),
         h('p', null, tie ? detPick(REACT.tie, v.code + r.n) : unanimous ? detPick(REACT.all, v.code + r.n) : detPick(REACT.one, v.code + r.n)),
         v.settings.scoring && pts ? h('span', { class: 'pts' }, `+${pts} point${pts > 1 ? 's' : ''}${r.special === 'double' ? ' ⭐' : ''}${tie ? ' (kol we7ed)' : ''}`) : null,
@@ -493,7 +499,7 @@ function buildLeaderboard() {
       if (p.score !== prev) { rank = i + 1; prev = p.score; }
       return h('div', { class: `lrow${rank === 1 && top > 0 ? ' first' : ''}${v2.you && p.id === v2.you.id ? ' me' : ''}`, style: `animation-delay:${i * 70}ms` },
         h('span', { class: 'rk' }, rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : String(rank)),
-        h('span', { class: 'a' }, p.avatar), h('span', { class: 'nm' }, p.name, h('div', { class: 'track', style: 'margin-top:6px' }, h('div', { class: 'fill', style: `width:${top ? Math.round(p.score / top * 100) : 0}%` }))),
+        h('span', { class: 'a' }, Av(p.avatar)), h('span', { class: 'nm' }, p.name, h('div', { class: 'track', style: 'margin-top:6px' }, h('div', { class: 'fill', style: `width:${top ? Math.round(p.score / top * 100) : 0}%` }))),
         h('span', { class: 'sc' }, String(p.score)));
     }));
     const done = v2.totalRounds > 0 && v2.round.n >= v2.totalRounds;
@@ -521,12 +527,12 @@ function buildFinal() {
   const youId = v.you && v.you.id;
   const el = h('div', { class: 'screen' },
     h('div', { class: 'winner-h' }, h('div', { style: 'font-size:56px' }, '👑'), h('div', { class: 't' }, heading), h('p', { class: 'muted', style: 'margin-top:6px;font-weight:800' }, sub), h('p', { class: 'hint', style: 'margin-top:4px' }, `${f.rounds} round${f.rounds > 1 ? 's' : ''} t3adew`)),
-    podium.length >= 2 ? h('div', { class: 'podium' }, order.map((p) => h('div', { class: `pod p${p.rank > 3 ? 3 : p.rank}` }, h('div', { class: 'a' }, p.avatar), h('div', { class: 'n' }, p.name), h('div', { class: 'ttl' }, p.title), h('div', { class: 'bl' }, f.scoring ? p.score : p.votes)))) : null,
+    podium.length >= 2 ? h('div', { class: 'podium' }, order.map((p) => h('div', { class: `pod p${p.rank > 3 ? 3 : p.rank}` }, h('div', { class: 'a' }, Av(p.avatar)), h('div', { class: 'n' }, p.name), h('div', { class: 'ttl' }, p.title), h('div', { class: 'bl' }, f.scoring ? p.score : p.votes)))) : null,
     h('div', { class: 'lb' }, rk.map((p, i) => h('div', { class: `lrow${p.rank === 1 ? ' first' : ''}${p.id === youId ? ' me' : ''}`, style: `animation-delay:${400 + i * 70}ms` },
       h('span', { class: 'rk' }, p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : p.rank === 3 ? '🥉' : String(p.rank)),
-      h('span', { class: 'a' }, p.avatar), h('span', { class: 'nm' }, p.name, h('div', { class: 'tt' }, p.title)),
+      h('span', { class: 'a' }, Av(p.avatar)), h('span', { class: 'nm' }, p.name, h('div', { class: 'tt' }, p.title)),
       h('span', { class: 'sc' }, f.scoring ? p.score : p.votes)))),
-    f.awards.length ? h('div', { class: 'awards' }, f.awards.map((a) => { const p = rk.find((x) => x.id === a.id); return h('div', { class: 'award' }, h('div', { class: 'e' }, a.emoji), h('div', { class: 'l' }, a.label), h('div', { class: 'w' }, p ? `${p.avatar} ${p.name}` : '?'), h('div', { class: 'hint' }, a.detail)); })) : null,
+    f.awards.length ? h('div', { class: 'awards' }, f.awards.map((a) => { const p = rk.find((x) => x.id === a.id); return h('div', { class: 'award' }, h('div', { class: 'e' }, a.emoji), h('div', { class: 'l' }, a.label), h('div', { class: 'w' }, p ? [Av(p.avatar), ' ' + p.name] : '?'), h('div', { class: 'hint' }, a.detail)); })) : null,
     ctrl);
   function update(v2) {
     if (v2.you && v2.you.isHost) ctrl.replaceChildren(h('button', { class: 'btn yel', type: 'button', onclick: () => act('again') }, '🔁 A3ed el le3ba'));

@@ -72,7 +72,7 @@ const closeAll = (bots) => bots.forEach((b) => b.drop());
     const html = await (await fetch(BASE + '/')).text(); ok(html.includes('Chkoun'), 'index served');
     const js = await fetch(BASE + '/app.js'); ok(js.status === 200, 'app.js served');
     const trav = await fetch(BASE + '/..%2f..%2fetc/passwd'); ok(trav.status !== 200 || !(await trav.text()).includes('root:'), 'no path traversal');
-    const info = await (await fetch(BASE + '/api/info')).json(); ok(info.categories.length === 11 && info.categories.reduce((a, c) => a + c.count, 0) >= 200, '200+ questions in 11 categories');
+    const info = await (await fetch(BASE + '/api/info')).json(); ok(info.avatars.length === 10 && info.avatars.every((a) => /^a\d+$/.test(a)), 'info lists 10 avatar ids'); for (const a of info.avatars) { const r = await fetch(BASE + '/avatars/' + a + '.jpg'); ok(r.status === 200 && r.headers.get('content-type') === 'image/jpeg', 'avatar file served: ' + a); } ok(info.categories.length === 11 && info.categories.reduce((a, c) => a + c.count, 0) >= 200, '200+ questions in 11 categories');
   });
 
   await T('lobby: room code, join rules, limits', async () => {

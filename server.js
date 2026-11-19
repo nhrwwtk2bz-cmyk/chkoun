@@ -30,8 +30,8 @@ const LEADERBOARD_EVERY = 3;
 const ROUND_OPTIONS = [5, 10, 15, 20, 0]; // 0 = endless (host ends the game)
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
 
-const AVATARS = ['😎', '🤡', '👻', '🦁', '🐯', '🐸', '🦊', '🐼', '🐵', '🦄', '🐙', '🦖',
-  '👽', '🤖', '💀', '🔥', '🍕', '🧿', '🐪', '🦅', '🐢', '🐊', '🥷', '🍋'];
+// Avatar pictures live in public/avatars/<id>.jpg
+const AVATARS = Array.from({ length: 10 }, (_, i) => 'a' + (i + 1));
 
 const TITLES = {
   first: ['Ra2is el Drama 👑', 'Sultan el Chaos 🔥', 'Mol el Mochkla 🚨', 'Zaim el 7ouma 🎤', 'Ma3lem el Fodhi 😎'],
@@ -446,7 +446,7 @@ setInterval(() => {
 
 /* -------------------------------------------------------------------- http */
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-  '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
 
 function json(res, status, obj) {
   const b = JSON.stringify(obj);

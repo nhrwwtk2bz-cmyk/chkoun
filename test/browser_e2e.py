@@ -37,8 +37,18 @@ try:
         h.goto(BASE); h.wait_for_selector(".logo")
         h.screenshot(path=f"{OUT}/01_home.png")
         h.fill("input.inp >> nth=0", "Ahmed")
+        # avatar picker: 10 real pictures, all loaded, selectable
+        h.wait_for_function("document.querySelectorAll('.av img').length === 10")
+        h.wait_for_function("[...document.querySelectorAll('.av img')].every(i => i.complete && i.naturalWidth > 0)")
+        check(h.locator(".av img").count() == 10, "avatar picker shows 10 pictures")
+        check(h.locator(".av").first.inner_text().strip() == "", "avatar picker has no emoji text left")
+        h.locator(".av").nth(2).click()
+        check(h.locator(".av.on").count() == 1 and h.locator(".av.on").get_attribute("data-a") == "a3", "tapping an avatar selects it")
+        h.screenshot(path=f"{OUT}/01b_avatar_picker.png")
         h.click("text=Ebda partie jdida")
         h.wait_for_selector(".roomcode")
+        h.wait_for_selector(".pl .a img")
+        check("/avatars/a3.jpg" in h.locator(".pl .a img").first.get_attribute("src"), "lobby shows the chosen avatar picture")
         code = h.inner_text(".roomcode").strip()
         check(re.fullmatch(r"[A-HJ-NP-Z2-9]{6}", code) is not None, f"room code format {code}")
 
