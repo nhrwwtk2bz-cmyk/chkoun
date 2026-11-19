@@ -35,6 +35,8 @@ try:
         # ---- home + create
         h = pages[0]
         h.goto(BASE); h.wait_for_selector(".logo")
+        h.wait_for_function("(() => { const i = document.querySelector('.logo img.hero'); return i && i.complete && i.naturalWidth > 0; })()")
+        check(True, "home logo picture loads")
         h.screenshot(path=f"{OUT}/01_home.png")
         h.fill("input.inp >> nth=0", "Ahmed")
         # avatar picker: 10 real pictures, all loaded, selectable
