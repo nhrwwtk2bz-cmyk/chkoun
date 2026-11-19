@@ -271,8 +271,8 @@ function buildHome() {
 
   const scr = h('input', { class: 'inp code', placeholder: 'CODE', maxlength: 6, autocapitalize: 'characters', style: 'font-size:18px;padding:10px' });
   scr.addEventListener('input', () => { scr.value = scr.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
-  const scrBox = h('div', { class: 'card', hidden: true }, h('p', { class: 'hint', style: 'margin-bottom:10px' }, 'Fta7 hedha 3la laptop wala tablette bech yetfarjou el kol 3al écran el kbir.'),
-    h('div', { class: 'row' }, scr, h('button', { class: 'btn ghost sm', style: 'width:auto', type: 'button', onclick: () => { if (scr.value.length === 6) location.href = `/?screen=${scr.value}`; else toast('Code lazem ykoun 6 7orouf', true); } }, 'Fta7 📺')));
+  const scrBox = h('div', { class: 'card', hidden: true }, h('p', { class: 'hint', style: 'margin-bottom:10px' }, '7el hedha 3la laptop wala tablette bech yetfarjou el kol 3al écran el kbir.'),
+    h('div', { class: 'row' }, scr, h('button', { class: 'btn ghost sm', style: 'width:auto', type: 'button', onclick: () => { if (scr.value.length === 6) location.href = `/?screen=${scr.value}`; else toast('Code lazem ykoun 6 7orouf', true); } }, '7el 📺')));
 
   const el = h('div', { class: 'screen' },
     h('div', { class: 'logo' }, h('span', { class: 'emo' }, '🎉'), h('span', { class: 't1' }, 'Chkoun'), h('span', { class: 't2' }, 'Akther ', h('b', null, 'Wa7ed?')),
