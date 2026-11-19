@@ -352,7 +352,8 @@ function roundHeader(v) {
 }
 function buildVoting() {
   const v0 = S.view, r0 = v0.round;
-  const qcard = h('div', { class: 'qcard' }, h('div', { class: 'cat-l' }, 'Chkoun akther we7ed…'), h('h2', null, r0.text.replace(/^Chkoun akther we7ed\s*/i, '').replace(/^./, (c) => c.toUpperCase())));
+  const PFX = /^Chkoun akther we7ed\s*/i, std = PFX.test(r0.text);
+  const qcard = h('div', { class: 'qcard' }, std ? h('div', { class: 'cat-l' }, 'Chkoun akther we7ed…') : null, h('h2', null, (std ? r0.text.replace(PFX, '') : r0.text).replace(/^./, (c) => c.toUpperCase())));
   const banner = r0.special ? h('div', { class: 'sbanner' }, SPECIAL[r0.special]) : null;
   const area = h('div', { style: 'display:flex;flex-direction:column;gap:14px' });
   const extra = h('div', { class: 'minirow' });

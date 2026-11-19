@@ -44,6 +44,8 @@ const RAW = {
     'Chkoun akther we7ed ya3mel el selfie ta3ba 20 marra 9bal ma yeb3eth wa7da?',
     'Chkoun akther we7ed yfahem el nokta ba3d sa3a w yodh7ek wa7du?',
     'Chkoun akther we7ed yosrokh 9odem 9ottous sghir w yekhlaa el kol?',
+    'Who is the funniest person in the group?',
+    'Who is most likely to become famous?',
   ],
   friends: [
     'Chkoun akther we7ed ya3ref asrar el groupe?',
@@ -76,6 +78,10 @@ const RAW = {
     'Chkoun akther we7ed ya3mel el "serieux" fi wost el fadha7?',
     'Chkoun akther we7ed howa el li dima yeb9a fi akher el soura?',
     'Chkoun akther we7ed bech yeb9a ys7ab fina ba3d 20 sna?',
+    'Chkoun akther we7ed mostafez fel groupe?',
+    'Chkoun akther we7ed ma ynajemch yji dima?',
+    'Who is the most annoying person in the group?',
+    'Who is the shyest person here?',
   ],
   love: [
     'Chkoun akther we7ed yet3alla9 bser3a?',
@@ -140,6 +146,7 @@ const RAW = {
     'Chkoun akther we7ed ynajem ychri 7aja 3la credit w yenssa?',
     'Chkoun akther we7ed dima y9ol "7atta flous 3andi ghodwa" w ma yji?',
     'Chkoun akther we7ed yfakker yekhdem fi 3 khedmet fi nafs el wa9t?',
+    'Who is the most generous person?',
   ],
   school: [
     'Chkoun akther we7ed ya3mel barcha excuses bech ma ya9rach?',
@@ -204,6 +211,9 @@ const RAW = {
     'Chkoun akther we7ed yekhser fi el jeu w ye9oul "kenou el manette 5ayba"?',
     'Chkoun akther we7ed ynajem yokhrej bel nhar w yeb9a l fajr?',
     'Chkoun akther we7ed ye9a3d sakit fi groupe w ye3ref kol chay?',
+    'Chkoun akther we7ed yetnamar 3la 3bed?',
+    'Chkoun akther we7ed y7eb rou7ou barcha?',
+    'Chkoun akther we7ed y9oul 7aja w ya3mel 3aksha?',
   ],
   tounsi: [
     'Chkoun akther we7ed bech yestanna louage 3 s3at yemla?',
