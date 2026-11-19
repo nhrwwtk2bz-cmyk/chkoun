@@ -12,6 +12,7 @@ const CATEGORIES = [
   { id: 'tounsi',  name: 'Tounsi 100%',           emoji: '🇹🇳' },
   { id: 'travel',  name: 'Safar & Voyage',        emoji: '✈️' },
   { id: 'job',     name: 'Job',                   emoji: '💼' },
+  { id: 'food',    name: 'Food',                  emoji: '🍕' },
 ];
 
 const RAW = {
@@ -256,7 +257,6 @@ const RAW = {
     'Chkoun akther we7ed yosref el sayf kol fi 7ammamet w ma yarja3ch?',
     'Chkoun akther we7ed yet3alla9 bel ma9roudh w el bsissa?',
     'Chkoun akther we7ed bech yo9a3d f plage men 7 sbe7 lel 7?',
-    'Chkoun akther we7ed y9oul "bsa7tek" w howa ye9ker el makla mel 9odem?',
     'Chkoun akther we7ed y9oul "chnowa el 7kaya" 3la ay 7aja?',
     'Chkoun akther we7ed y3ayet lel 3ayla kol ma ya3mel mochkla sghira?',
     'Chkoun akther we7ed yfaddel el lablabi 3la el 9ahwa fi sbe7?',
@@ -266,7 +266,6 @@ const RAW = {
     'Chkoun akther we7ed y3ayet "ya sidi" l ay we7ed kbir?',
     'Chkoun akther we7ed yakel el brik b yeddih w ydhaher rou7ou 3adi?',
     'Chkoun akther we7ed ye7eb ya3mel "tounes wa7da" w yelbes maillot el equipe?',
-    'Chkoun akther we7ed yfakker fi el ghda 9bal ma yfi9 mel nom?',
     'Chkoun akther we7ed ye3mel resolutions kol 3am w yenssahom f janvier?',
     'Chkoun akther we7ed ye7eb el chorba w yfaddelha 3la kol 7aja?',
     'Chkoun akther we7ed howa "mol el 7ouma" w ye3ref kol ness?',
@@ -303,6 +302,28 @@ const RAW = {
     'Who would be the strictest boss?',
     'Who would become successful without going to university?',
     'Who would secretly hate their job but pretend to love it?',
+  ],
+  food: [
+    'Chkoun akther we7ed fel groupe ynajem yekel men maklet sa7bou w y9oulou thwe9a khaw?',
+    'Chkoun akther we7ed ynajem ya3mel régime nhar w ykasserou nhar elli ba3dou?',
+    'Chkoun akther we7ed ynajem yekel kol chay w ma y9oulch le?',
+    'Chkoun akther we7ed ynajem yod5ol lel cuisine w y5arrej to7fa?',
+    'Chkoun akther we7ed ynajem ysaref barcha flous 3la el mekla?',
+    'Chkoun akther we7ed ynajem yebda yekel 9bal ma tousel el commande mta3 el groupe?',
+    'Chkoun akther we7ed ynajem ykammel plat mta3 we7ed e5er ba3d ma ykammel plat mte3ou?',
+    'Chkoun akther we7ed ynajem ya3mel rou7ou chef w howa ma ya3refch ya9li 3adhma?',
+    'Chkoun akther we7ed ynajem yfi9 men noumou fi nos ellil bech yekel?',
+    'Chkoun akther we7ed ma ynajjemch ya3ich jem3a kemla bla fast food?',
+    'Who would eat the same meal every single day?',
+    'Who would win a food-eating competition?',
+    'Who would spend €100 on one meal?',
+    'Who would open a restaurant and go bankrupt in one month?',
+    'Who would eat something strange just for a challenge?',
+    'Who would secretly eat the last piece of cake?',
+    'Who would become a food critic?',
+    'Who would choose dessert instead of the main meal?',
+    'Who would order the most expensive thing on the menu?',
+    'Who would survive the longest on an island with only one type of food?',
   ],
 };
 
