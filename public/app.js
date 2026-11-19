@@ -281,8 +281,8 @@ function buildHome() {
     h('div', { class: 'row' }, scr, h('button', { class: 'btn ghost sm', style: 'width:auto', type: 'button', onclick: () => { if (scr.value.length === 6) location.href = `/?screen=${scr.value}`; else toast('Code lazem ykoun 6 7orouf', true); } }, '7el 📺')));
 
   const el = h('div', { class: 'screen' },
-    h('div', { class: 'logo' }, h('img', { class: 'hero', src: '/logo.jpg', alt: 'Chkoun Akther Wa7ed?', draggable: 'false' }),
-      h('p', { class: 'sub' }, 'El le3ba lel s7ab. Sawwet b secret, w chouf el 7a9i9a m3a b3adhkom 😈')),
+    h('div', { class: 'logo' }, h('img', { class: 'hero', src: '/logo.jpg', alt: 'Chkoun', draggable: 'false' }),
+      h('span', { class: 't2' }, 'Akther ', h('b', null, 'Wa7ed?'))),
     h('div', { class: 'card' }, h('label', { class: 'lbl' }, 'Esmek'), name, h('label', { class: 'lbl', style: 'margin-top:14px' }, 'Ekhtar avatar'), grid),
     prefill ? h('div', { class: 'card' }, h('label', { class: 'lbl' }, 'Code el partie'), code, h('div', { style: 'height:12px' }), join) : null,
     prefill ? null : create,

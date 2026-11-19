@@ -44,7 +44,7 @@ h1,h2,h3,p{margin:0}
 /* logo */
 .logo{text-align:center;padding:6px 0 2px}
 .logo .t1{font-size:clamp(46px,15vw,70px);font-weight:900;line-height:.95;letter-spacing:-.03em;background:linear-gradient(90deg,var(--yel),var(--pink) 55%,var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 22px #ff2e8844);display:block}
-.logo .t2{font-size:clamp(30px,10vw,46px);font-weight:900;line-height:1;letter-spacing:-.02em;display:block;margin-top:2px}
+.logo .t2{position:relative;z-index:1;font-size:clamp(30px,10vw,46px);font-weight:900;line-height:1;letter-spacing:-.02em;display:block;margin-top:2px;margin-bottom:6px}
 .logo .t2 b{color:var(--cyan)}
 .logo .sub{position:relative;z-index:1;margin-top:10px;color:var(--mut);font-size:15px}
 .logo .emo{font-size:40px;display:inline-block;animation:wob 2.4s ease-in-out infinite}
