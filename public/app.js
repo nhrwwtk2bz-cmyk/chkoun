@@ -261,12 +261,12 @@ function buildHome() {
     S.profile = { name: n, avatar }; store.set('ckw.profile', S.profile); return n;
   };
   const guard = async (fn) => { if (S.busy) return; S.busy = true; try { await fn(); } catch (e) { toast(ERR[e.code] || 'Mochkla ta9niya 😵', true); } finally { S.busy = false; } };
-  const create = h('button', { class: 'btn', type: 'button', onclick: () => { Sfx.unlock(); guard(async () => { const n = need(); if (!n) return; const r = await api('/api/create', { name: n, avatar }); await enter(r.code, r.token, r.playerId); }); } }, '🎉 Sna3 partie jdida');
+  const create = h('button', { class: 'btn', type: 'button', onclick: () => { Sfx.unlock(); guard(async () => { const n = need(); if (!n) return; const r = await api('/api/create', { name: n, avatar }); await enter(r.code, r.token, r.playerId); }); } }, '🎉 Ebda partie jdida');
   const join = h('button', { class: `btn ${prefill ? '' : 'cyan'}`, type: 'button', onclick: () => { Sfx.unlock(); guard(async () => {
     const n = need(); if (!n) return;
     if (code.value.length !== 6) { code.classList.remove('shake'); void code.offsetWidth; code.classList.add('shake'); toast('Code lazem ykoun 6 7orouf', true); return; }
     const r = await api('/api/join', { code: code.value, name: n, avatar }); await enter(r.code, r.token, r.playerId); }); } }, '🚪 Edkhol lel partie');
-  if (prefill) { create.className = 'btn ghost'; create.textContent = '🎉 Wala sna3 partie jdida'; }
+  if (prefill) { create.className = 'btn ghost'; create.textContent = '🎉 Wala ebda partie jdida'; }
   code.addEventListener('keydown', (e) => { if (e.key === 'Enter') join.click(); });
 
   const scr = h('input', { class: 'inp code', placeholder: 'CODE', maxlength: 6, autocapitalize: 'characters', style: 'font-size:18px;padding:10px' });

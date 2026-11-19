@@ -37,7 +37,7 @@ try:
         h.goto(BASE); h.wait_for_selector(".logo")
         h.screenshot(path=f"{OUT}/01_home.png")
         h.fill("input.inp >> nth=0", "Ahmed")
-        h.click("text=Sna3 partie jdida")
+        h.click("text=Ebda partie jdida")
         h.wait_for_selector(".roomcode")
         code = h.inner_text(".roomcode").strip()
         check(re.fullmatch(r"[A-HJ-NP-Z2-9]{6}", code) is not None, f"room code format {code}")
