@@ -25,7 +25,7 @@ const LOBBY_DROP_MS = +process.env.LOBBY_DROP_MS || 90000;
 const ROOM_IDLE_MS = 30 * 60 * 1000;
 const ROOM_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 const MIN_PLAYERS = 3;
-const MAX_PLAYERS = 12;
+const MAX_PLAYERS = 10; // one distinct avatar picture per player (see AVATARS below)
 const LEADERBOARD_EVERY = 3;
 const ROUND_OPTIONS = [5, 10, 15, 20, 0]; // 0 = endless (host ends the game)
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
@@ -60,6 +60,8 @@ function cleanName(s) {
   return String(s || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
 }
 function cleanAvatar(a) { return AVATARS.includes(a) ? a : pick(AVATARS); }
+// Avatars already used by players currently in the room (players who left free theirs).
+const takenAvatars = (room) => [...room.players.values()].filter((p) => !p.left).map((p) => p.avatar);
 
 /* -------------------------------------------------------------- rate limit */
 const buckets = new Map();
@@ -520,9 +522,21 @@ const server = http.createServer(async (req, res) => {
       if (!name) return json(res, 400, { error: 'need_name' });
       if (active(room).length >= MAX_PLAYERS) return json(res, 409, { error: 'room_full' });
       if (active(room).some((x) => x.name.toLowerCase() === name.toLowerCase())) return json(res, 409, { error: 'name_taken' });
-      const me = addPlayer(room, name, cleanAvatar(b.avatar));
+      // Every player in a room has a different avatar. A wanted avatar that is already taken is refused;
+      // no (or an unknown) avatar gets the first free one.
+      const taken = takenAvatars(room);
+      let avatar = b.avatar;
+      if (AVATARS.includes(avatar)) { if (taken.includes(avatar)) return json(res, 409, { error: 'avatar_taken', taken }); }
+      else avatar = AVATARS.find((a) => !taken.includes(a)) || pick(AVATARS);
+      const me = addPlayer(room, name, avatar);
       broadcast(room);
       return json(res, 200, { code: room.code, token: me.token, playerId: me.id });
+    }
+
+    if (p === '/api/room-avatars') { // which avatars are already taken in this room (so joiners can grey them out)
+      const room = rooms.get(String(url.searchParams.get('code') || '').toUpperCase().trim());
+      if (!room) return json(res, 404, { error: 'no_room' });
+      return json(res, 200, { taken: takenAvatars(room), full: active(room).length >= MAX_PLAYERS });
     }
 
     if (p === '/api/screen-check') { // is this room alive? (used by auto-reconnect)

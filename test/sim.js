@@ -17,7 +17,7 @@ async function post(p, body) {
 
 class Bot {
   constructor(name) { this.name = name; this.state = null; this.raw = []; this.waiters = []; this.req = null; this.ping = null; this.events = []; }
-  async create() { const r = await post('/api/create', { name: this.name, avatar: '😎' }); Object.assign(this, r.body); this.code = r.body.code; return r; }
+  async create(extra = {}) { const r = await post('/api/create', { name: this.name, avatar: '😎', ...extra }); Object.assign(this, r.body); this.code = r.body.code; return r; }
   async join(code, extra = {}) { const r = await post('/api/join', { code, name: this.name, avatar: '🤡', ...extra }); if (r.status === 200) { Object.assign(this, r.body); this.code = code; } return r; }
   open(screen = false) {
     return new Promise((resolve) => {
@@ -81,13 +81,13 @@ const closeAll = (bots) => bots.forEach((b) => b.drop());
     const bad = await new Bot('X').join('ZZZZZZ'); ok(bad.status === 404, 'unknown room rejected');
     const nameless = await post('/api/join', { code: host.code, name: '   ' }); ok(nameless.status === 400, 'empty name rejected');
     const bots = [host];
-    for (let i = 1; i < 12; i++) { const b = new Bot('Joueur' + i); const j = await b.join(host.code); ok(j.status === 200, 'join ' + i); await b.open(); bots.push(b); }
-    const b13 = await new Bot('Extra').join(host.code); ok(b13.status === 409 && b13.body.error === 'room_full', '13th player rejected (max 12)');
-    await host.waitFor((s) => s.players.length === 12);
+    for (let i = 1; i < 10; i++) { const b = new Bot('Joueur' + i); const j = await b.join(host.code); ok(j.status === 200, 'join ' + i); await b.open(); bots.push(b); }
+    const b11 = await new Bot('Extra').join(host.code); ok(b11.status === 409 && b11.body.error === 'room_full', '11th player rejected (max 10)');
+    await host.waitFor((s) => s.players.length === 10);
     ok(host.state.players.every((p) => !('token' in p)), 'tokens never exposed');
     const s = await post('/api/act', { code: host.code, token: bots[3].token, type: 'start' }); ok(s.status === 400, 'non-host cannot start');
-    const st = await host.act('start'); ok(st.status === 200, 'host starts with 12');
-    await host.waitFor((s) => s.phase === 'voting'); ok(host.state.round.candidates.length === 12, '12 candidates');
+    const st = await host.act('start'); ok(st.status === 200, 'host starts with 10');
+    await host.waitFor((s) => s.phase === 'voting'); ok(host.state.round.candidates.length === 10, '10 candidates');
     closeAll(bots);
   });
 
@@ -242,16 +242,40 @@ const closeAll = (bots) => bots.forEach((b) => b.drop());
     ok(r === 401, 'SSE with bad token => 401'); closeAll([h, a, scr]);
   });
 
-  await T('12-player full game stress (all vote every round)', async () => {
-    const bots = await newRoom(12); const [h] = bots; await h.act('settings', { settings: { rounds: 5 } }); await h.act('start');
+  await T('avatars are unique per room', async () => {
+    const host = new Bot('Ava'); await host.create({ avatar: 'a3' }); await host.open();
+    const q = async () => (await (await fetch(BASE + '/api/room-avatars?code=' + host.code)).json());
+    ok(JSON.stringify((await q()).taken) === '["a3"]', 'taken list shows the host avatar a3');
+    const same = await new Bot('Ben').join(host.code, { avatar: 'a3' });
+    ok(same.status === 409 && same.body.error === 'avatar_taken' && same.body.taken.includes('a3'), 'joining with a taken avatar is refused');
+    const ben = new Bot('Ben'); ok((await ben.join(host.code, { avatar: 'a4' })).status === 200, 'a free avatar is accepted'); await ben.open();
+    ok((await q()).taken.slice().sort().join() === 'a3,a4', 'taken list has both avatars');
+    const cy = new Bot('Cy'); ok((await cy.join(host.code, { avatar: '🤡' })).status === 200, 'unknown avatar still joins'); await cy.open();
+    await host.waitFor((s) => s.players.length === 3);
+    const avs = host.state.players.map((p) => p.avatar); ok(new Set(avs).size === 3 && avs.every((a) => /^a\d+$/.test(a)), 'three players, three different avatars: ' + avs);
+    const rr = await Promise.all([new Bot('R1'), new Bot('R2'), new Bot('R3')].map((b) => b.join(host.code, { avatar: 'a9' })));
+    ok(rr.filter((r) => r.status === 200).length === 1 && rr.filter((r) => r.body.error === 'avatar_taken').length === 2, 'race: only one of three simultaneous joiners gets a9');
+    await ben.act('leave');
+    ok(!(await q()).taken.includes('a4'), 'avatar a4 is free again after its player leaves');
+    ok((await new Bot('Dee').join(host.code, { avatar: 'a4' })).status === 200, 'a freed avatar can be taken again');
+    ok((await fetch(BASE + '/api/room-avatars?code=ZZZZZZ')).status === 404, 'unknown room answers 404');
+  });
+
+  await T('10 players always get 10 different avatars', async () => {
+    const bots = await newRoom(10); const host = bots[0];
+    ok(new Set(host.state.players.map((p) => p.avatar)).size === 10, 'all 10 avatars distinct in a full room');
+  });
+
+  await T('10-player full game stress (all vote every round)', async () => {
+    const bots = await newRoom(10); const [h] = bots; await h.act('settings', { settings: { rounds: 5 } }); await h.act('start');
     for (let r = 1; r <= 5; r++) {
       await Promise.all(bots.map((b) => b.waitFor((s) => s.phase === 'voting' && s.round.n === r)));
-      await Promise.all(bots.map((b, i) => b.act('vote', { target: bots[(i + 1 + (r % 3)) % 12].playerId })));
+      await Promise.all(bots.map((b, i) => b.act('vote', { target: bots[(i + 1 + (r % 3)) % 10].playerId })));
       await Promise.all(bots.map((b) => b.waitFor((s) => s.phase === 'reveal' && s.round.n === r)));
-      ok(h.state.round.result.total === 12, 'round ' + r + ': 12 votes');
+      ok(h.state.round.result.total === 10, 'round ' + r + ': 10 votes');
       if (r < 5) { await h.act('next'); if (r === 3) { await h.waitFor((s) => s.phase === 'leaderboard'); await h.act('next'); } }
     }
-    await h.act('next'); await h.waitFor((s) => s.phase === 'final'); ok(h.state.final.ranking.length === 12, '12 ranked');
+    await h.act('next'); await h.waitFor((s) => s.phase === 'final'); ok(h.state.final.ranking.length === 10, '10 ranked');
     // payload anonymity audit across ALL traffic of ALL bots: the server only ever exposes the receiver's own vote
     let leaks = 0; for (const b of bots) for (const raw of b.raw) { const s = JSON.parse(raw); const votes = (raw.match(/"vote":/g) || []).length; if (votes > 1) leaks++; }
     ok(leaks === 0, 'never more than one "vote" field (own) in any payload');

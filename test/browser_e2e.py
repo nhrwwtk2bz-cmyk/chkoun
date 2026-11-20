@@ -63,14 +63,33 @@ try:
         check(val.endswith(f"/?r={code}"), "QR code decodes to the join link with the room code")
 
         # ---- other phones join using the link (scan simulation)
+        used = ["a3"]  # the host picked a3
+        # a phone that is already sitting on its picker (it chose a1) must see a1 get taken live
+        live = pages[3]; live.goto(f"{BASE}/?r={code}"); live.wait_for_selector(".logo")
+        live.wait_for_function("document.querySelectorAll('.av.taken').length === 1")
+        live.locator('.av[data-a="a1"]').click()
+        check(live.locator(".av.on").get_attribute("data-a") == "a1", "waiting phone picked a1")
         for pg, n in zip(pages[1:], names[1:]):
             pg.goto(f"{BASE}/?r={code}"); pg.wait_for_selector(".logo")
             check(pg.input_value("input.inp.code") == code, f"{n}: code prefilled from QR link")
+            pg.wait_for_function(f"document.querySelectorAll('.av.taken').length === {len(used)}")
+            check(pg.locator('.av[data-a="a3"]').is_disabled(), f"{n}: host avatar a3 is greyed out / disabled")
+            pg.locator('.av[data-a="a3"]').click(force=True)
+            check(pg.locator(".av.on").get_attribute("data-a") != "a3", f"{n}: a taken avatar cannot be selected")
+            if n == names[1]: pg.screenshot(path=f"{OUT}/02b_guest_picker.png")
+            free = pg.locator(".av:not(.taken)").nth(0); mine = free.get_attribute("data-a"); free.click()
+            check(pg.locator(".av.on").get_attribute("data-a") == mine, f"{n}: picked free avatar {mine}")
             pg.fill("input.inp >> nth=0", n)
             pg.click("text=Edkhol lel partie")
             pg.wait_for_selector(".players")
+            used.append(mine)
+            if n == names[1]:
+                live.wait_for_function("document.querySelectorAll('.av.taken').length === 2", timeout=8000)
+                check(live.locator(".av.on").get_attribute("data-a") != "a1", "waiting phone moved off a1 when another player took it (live update)")
         h.wait_for_function("document.querySelectorAll('.pl').length===4")
         check(True, "4 players visible in host lobby")
+        srcs = h.locator(".pl .a img").evaluate_all("els => els.map(e => e.getAttribute('src'))")
+        check(len(srcs) == 4 and len(set(srcs)) == 4, f"4 players, 4 different avatars in the lobby: {srcs}")
         h.screenshot(path=f"{OUT}/02_lobby_host.png", full_page=True)
         pages[1].screenshot(path=f"{OUT}/03_lobby_guest.png", full_page=True)
 

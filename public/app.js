@@ -32,7 +32,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /* ============================================================ texts */
 const ERR = {
   need_players: 'Lazem 3 le3bin 3al a9al bech nebdew 👥', name_taken: 'Had el esm mawjoud 9bal, ekhtar o5ra 😅',
-  room_full: 'El partie 3amra (12 max) 🚫', no_room: 'Code ghalet wala el partie salet 🤷', need_name: 'Ekteb esmek 3la khatrek ✍️',
+  room_full: 'El partie 3amra (10 max) 🚫', avatar_taken: 'Had el avatar khdhah we7ed e5er, ekhtar o5ra 😅', no_room: 'Code ghalet wala el partie salet 🤷', need_name: 'Ekteb esmek 3la khatrek ✍️',
   slow_down: 'Mhal 3lina chwaya... 🐢', already_voted: 'Dejà votit 🔒', self_vote: 'Ma tnajemch tvoti 3la rou7ek 😂',
   bad_token: 'Ta3tilet el session, 3awed edkhol', not_allowed: 'Hadhi ghir lel host 👑', not_voting: 'El vote safa 3la el round hedha',
   need_category: 'Lazem tkhalli categorie wa7da 3al a9al', no_votes: 'Mazel ma7ad vota 🤨', offline: 'Ma fama ch internet 📶', busy: 'El server mazdoum, 3awed ba3d chwaya',
@@ -258,15 +258,31 @@ function buildHome() {
   let avatar = S.info.avatars.includes(S.profile.avatar) ? S.profile.avatar : S.info.avatars[Math.floor(Math.random() * S.info.avatars.length)];
   const name = h('input', { class: 'inp', placeholder: 'Esmek (max 14)', maxlength: 14, value: S.profile.name || '', autocomplete: 'off', autocapitalize: 'words', enterkeyhint: 'done' });
   const grid = h('div', { class: 'avatars' }, S.info.avatars.map((a) => h('button', { type: 'button', class: 'av' + (a === avatar ? ' on' : ''), 'data-a': a, 'aria-label': 'Avatar',
-    onclick: () => { avatar = a; [...grid.children].forEach((c) => c.classList.toggle('on', c.dataset.a === a)); Sfx.unlock(); Sfx.pop(); } }, Av(a))));
+    onclick: () => { if (taken.includes(a)) return; avatar = a; [...grid.children].forEach((c) => c.classList.toggle('on', c.dataset.a === a)); Sfx.unlock(); Sfx.pop(); } }, Av(a))));
   const code = h('input', { class: 'inp code', placeholder: 'CODE', maxlength: 6, value: prefill, autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', enterkeyhint: 'go' });
   code.addEventListener('input', () => { code.value = code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+  // Avatars already used in the room whose code is typed (or came from the QR link) are greyed out and cannot be picked.
+  let taken = [];
+  const hint = h('p', { class: 'hint', hidden: true, style: 'margin-top:10px' }, 'Li mgreyin 🔒 khdhehom le3bin o5rin fi had el partie.');
+  const paintAvatars = () => {
+    if (taken.includes(avatar)) { const free = S.info.avatars.find((a) => !taken.includes(a)); if (free) avatar = free; }
+    [...grid.children].forEach((c) => { const t = taken.includes(c.dataset.a); c.classList.toggle('taken', t); c.disabled = t; c.classList.toggle('on', c.dataset.a === avatar); });
+    hint.hidden = !taken.length;
+  };
+  const refreshTaken = async () => {
+    const c = code.value.trim(); let next = [];
+    if (c.length === 6) { try { const r = await fetch('/api/room-avatars?code=' + c, { cache: 'no-store' }); if (r.ok) next = (await r.json()).taken || []; } catch (e) { return; } }
+    if (next.join() !== taken.join()) { taken = next; paintAvatars(); }
+  };
+  code.addEventListener('input', refreshTaken);
+  refreshTaken();
+  const poll = setInterval(() => { if (!grid.isConnected) { if (grid.dataset.seen) clearInterval(poll); return; } grid.dataset.seen = '1'; refreshTaken(); }, 2500);
   const need = () => {
     const n = name.value.trim();
     if (!n) { name.classList.remove('shake'); void name.offsetWidth; name.classList.add('shake'); name.focus(); toast(ERR.need_name, true); return null; }
     S.profile = { name: n, avatar }; store.set('ckw.profile', S.profile); return n;
   };
-  const guard = async (fn) => { if (S.busy) return; S.busy = true; try { await fn(); } catch (e) { toast(ERR[e.code] || 'Mochkla ta9niya 😵', true); } finally { S.busy = false; } };
+  const guard = async (fn) => { if (S.busy) return; S.busy = true; try { await fn(); } catch (e) { if (e.code === 'avatar_taken') refreshTaken(); toast(ERR[e.code] || 'Mochkla ta9niya 😵', true); } finally { S.busy = false; } };
   const create = h('button', { class: 'btn', type: 'button', onclick: () => { Sfx.unlock(); guard(async () => { const n = need(); if (!n) return; const r = await api('/api/create', { name: n, avatar }); await enter(r.code, r.token, r.playerId); }); } }, '🎉 Ebda partie jdida');
   const join = h('button', { class: `btn ${prefill ? '' : 'cyan'}`, type: 'button', onclick: () => { Sfx.unlock(); guard(async () => {
     const n = need(); if (!n) return;
@@ -283,14 +299,14 @@ function buildHome() {
   const el = h('div', { class: 'screen' },
     h('div', { class: 'logo' }, h('img', { class: 'hero', src: '/logo.jpg', alt: 'Chkoun', draggable: 'false' }),
       h('span', { class: 't2' }, 'Akther ', h('b', null, 'Wa7ed?'))),
-    h('div', { class: 'card' }, h('label', { class: 'lbl' }, 'Esmek'), name, h('label', { class: 'lbl', style: 'margin-top:14px' }, 'Ekhtar avatar'), grid),
+    h('div', { class: 'card' }, h('label', { class: 'lbl' }, 'Esmek'), name, h('label', { class: 'lbl', style: 'margin-top:14px' }, 'Ekhtar avatar'), grid, hint),
     prefill ? h('div', { class: 'card' }, h('label', { class: 'lbl' }, 'Code el partie'), code, h('div', { style: 'height:12px' }), join) : null,
     prefill ? null : create,
     prefill ? create : h('div', { class: 'sep' }, 'wala'),
     prefill ? null : h('div', { class: 'card' }, h('label', { class: 'lbl' }, 'Andek code?'), code, h('div', { style: 'height:12px' }), join),
     h('button', { class: 'link', type: 'button', style: 'align-self:center;margin-top:6px', onclick: () => { scrBox.hidden = !scrBox.hidden; } }, '📺 Mode écran kbir (TV / laptop)'),
     scrBox,
-    h('p', { class: 'hint' }, '3-12 le3bin • kol we7ed 3al téléphone mta3ou • vote anonyme 🔒'));
+    h('p', { class: 'hint' }, '3-10 le3bin • kol we7ed 3al téléphone mta3ou • vote anonyme 🔒'));
   return { el };
 }
 

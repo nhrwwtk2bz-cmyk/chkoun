@@ -76,6 +76,9 @@ label.lbl{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text
 .av{aspect-ratio:1;border-radius:50%;padding:3px;font-size:24px;background:var(--card);border:3px solid transparent;display:grid;place-items:center;transition:transform .15s,border-color .15s,background .15s}
 .av.on{border-color:var(--yel);background:#ffd23f22;transform:scale(1.12)}
 @media (max-width:380px){.avatars{gap:7px}}
+.av.taken{cursor:not-allowed;position:relative}
+.av.taken .avimg{opacity:.28;filter:grayscale(1)}
+.av.taken::after{content:'🔒';position:absolute;inset:0;display:grid;place-items:center;font-size:22px;text-shadow:0 1px 6px rgba(0,0,0,.7)}
 .av .avimg,.dot .avimg{display:block;width:100%;height:100%;vertical-align:baseline}
 
 /* lobby */
