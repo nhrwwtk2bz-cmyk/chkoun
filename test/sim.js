@@ -95,6 +95,12 @@ const closeAll = (bots) => bots.forEach((b) => b.drop());
     const [h, p] = await newRoom(2); const r = await h.act('start'); ok(r.status === 400 && r.body.error === 'need_players', 'blocked with 2 players'); closeAll([h, p]);
   });
 
+  await T('roasts.js has every category and tier', async () => {
+    const R = require('../public/roasts.js');
+    ok(['unanimous', 'majority', 'few', 'general', 'tie'].every((k) => Array.isArray(R[k]) && R[k].length >= 2), 'roast tiers filled');
+    const cats = (await (await fetch(BASE + '/api/info')).json()).categories.map((c) => c.id);
+    ok(cats.every((c) => R.cat[c] && R.cat[c].length >= 2), 'roast lines for each category');
+  });
   await T('settings: categories / rounds / scoring (host only)', async () => {
     const bots = await newRoom(3); const [h, a] = bots;
     ok((await a.act('settings', { settings: { rounds: 5 } })).status === 400, 'non-host cannot change settings');

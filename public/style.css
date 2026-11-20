@@ -223,3 +223,26 @@ body.screen .players{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 @media (min-width:900px){body.screen .res{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
 
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ---- winner spotlight ---- */
+.shown .rr.hold .cnt{visibility:hidden}
+.rr.hold .fill{width:0!important}
+.shown .rr.hold.win .a::after{opacity:0}
+.spot{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:28px 22px;text-align:center;cursor:pointer;background:radial-gradient(ellipse 75% 55% at 50% 34%,rgba(255,226,120,.30),rgba(5,5,12,.95) 64%),rgba(5,5,12,.9);animation:spotIn .4s ease both}
+.spot::before{content:"";position:absolute;top:0;left:50%;width:min(130vw,760px);height:62%;transform:translateX(-50%);background:conic-gradient(from 165deg at 50% 0%,transparent 0deg,rgba(255,236,150,.26) 12deg,rgba(255,236,150,.26) 18deg,transparent 30deg,transparent 360deg);pointer-events:none;animation:spotIn .7s .1s both}
+@keyframes spotIn{from{opacity:0}to{opacity:1}}
+@keyframes spotPop{from{transform:scale(.2) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+.spot>*{position:relative;z-index:1}
+.spot-av{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;font-size:min(52vw,230px);line-height:0}
+.spot-av.multi{font-size:min(30vw,130px)}
+.spot-av .sa{display:block;border-radius:50%;box-shadow:0 0 0 6px var(--yel),0 0 60px 14px rgba(255,210,63,.55);animation:spotPop .7s .15s cubic-bezier(.2,1.6,.4,1) both}
+.spot-av .avimg{display:block;width:1em;height:1em}
+.spot-name{font-size:clamp(30px,9vw,54px);font-weight:900;letter-spacing:-.02em;animation:pop .5s .6s both}
+.spot-l1{font-size:clamp(16px,4.6vw,24px);font-weight:800;color:var(--yel);animation:pop .5s 1s both}
+.spot-l2{max-width:600px;font-size:clamp(20px,6vw,32px);font-weight:900;line-height:1.25;animation:pop .6s 1.7s both}
+.spot-tap{position:absolute!important;bottom:calc(22px + var(--safe-b));font-size:13px;color:#ffffff99;animation:spotIn .4s 2.6s both}
+body.screen .spot-av{font-size:min(34vh,280px)}
+body.screen .spot-av.multi{font-size:min(22vh,170px)}
+body.screen .spot-name{font-size:clamp(40px,6vw,80px)}
+body.screen .spot-l1{font-size:clamp(22px,2.6vw,36px)}
+body.screen .spot-l2{font-size:clamp(26px,3.4vw,48px);max-width:1000px}

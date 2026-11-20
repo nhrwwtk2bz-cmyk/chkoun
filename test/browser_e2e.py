@@ -11,6 +11,14 @@ errors = []
 passed = 0
 failed = 0
 
+
+def skip_spot(pg):
+    """reveal shows a winner spotlight first; tap it if still open, then wait for the verdict card"""
+    pg.wait_for_selector(".spot, .verdict", timeout=14000)
+    if pg.locator(".spot").count(): pg.click(".spot", timeout=3000)
+    pg.wait_for_selector(".verdict", timeout=6000)
+
+
 def check(cond, msg):
     global passed, failed
     if cond: passed += 1
@@ -124,7 +132,12 @@ try:
 
         # round 1: all vote Sami (Sami votes Nour)
         vote_all(["Sami", "Nour", "Sami", "Sami"])
-        for pg in pages: pg.wait_for_selector(".verdict", timeout=9000)
+        try: pages[2].wait_for_selector(".spot", timeout=14000)
+        except Exception: print("ERRS", errors, pages[2].evaluate("[document.querySelectorAll(\".drum\").length, document.querySelectorAll(\".rr.hold\").length, document.querySelectorAll(\".verdict\").length, document.body.className, [...document.querySelectorAll(\".rr .cnt\")].map(x=>x.style.animationDelay).join()]")); raise
+        sp = pages[2].inner_text(".spot")
+        check("Sami" in sp and "voted" not in sp.lower() or "Sami" in sp, "spotlight names the winner")
+        check(len(pages[2].query_selector_all(".spot .spot-l2")) == 1 and len(pages[2].inner_text(".spot-l2")) > 5, "spotlight shows a roast line")
+        for pg in pages: skip_spot(pg)
         time.sleep(0.8)
         verdict = pages[2].inner_text(".verdict h2"); print("  verdict:", verdict)
         check("Sami" in verdict, "reveal shows Sami as winner")
@@ -150,13 +163,13 @@ try:
         check(True, "network banner clears after reconnect")
         pages[1].screenshot(path=f"{OUT}/10_after_reconnect.png")
         vote_all.__call__(["Nour", "Nour", "Ahmed", "Nour"])  # round 2: Nour 3 votes
-        for pg in pages: pg.wait_for_selector(".verdict", timeout=9000)
+        for pg in pages: skip_spot(pg)
 
         # ---- tie round: continue to round 3 then leaderboard
         pages[0].click("text=Round jey")
         for pg in pages: pg.wait_for_selector(".cand")
         vote_all(["Sami", "Nour", "Yassine", "Ahmed"])  # perfect tie of 4
-        for pg in pages: pg.wait_for_selector(".verdict", timeout=9000)
+        for pg in pages: skip_spot(pg)
         time.sleep(0.5)
         vt = pages[1].inner_text(".verdict h2"); print("  tie verdict:", vt)
         check("Ta3adol" in vt, "tie displayed")
@@ -169,14 +182,14 @@ try:
         pages[0].click("text=Kamel")
         for pg in pages: pg.wait_for_selector(".cand")
         vote_all(["Nour", "Ahmed", "Ahmed", "Ahmed"])
-        for pg in pages: pg.wait_for_selector(".verdict", timeout=9000)
+        for pg in pages: skip_spot(pg)
         pages[0].click("text=Round jey")
         for pg in pages: pg.wait_for_selector(".cand")
         # host forces reveal with only 1 vote
         pages[1].locator(".cand >> nth=0").click(); pages[1].click(".confirm .btn")
         time.sleep(0.4)
         pages[0].click("text=Kchef dork")
-        for pg in pages: pg.wait_for_selector(".verdict", timeout=9000)
+        for pg in pages: skip_spot(pg)
         check(True, "host force-reveal works from UI")
         pages[0].click("text=Chouf el nataij")
         for pg in pages: pg.wait_for_selector(".podium, .lb", timeout=8000)

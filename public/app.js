@@ -209,6 +209,7 @@ function onState(view) {
 function show(key, builder) {
   if (S.key === key) return;
   clearTimers(); S.key = key;
+  document.querySelectorAll('.spot').forEach((x) => x.remove());
   const app = $('#app'); app.replaceChildren();
   const out = builder(); app.append(out.el); S.updater = out.update || null;
   window.scrollTo(0, 0);
@@ -442,6 +443,27 @@ function buildVoting() {
   return { el, update };
 }
 
+/* ============================================================ SPOTLIGHT (winner + roast) */
+// Same lines on every phone: the choice depends only on the room code and the round number.
+function roastFor(names, res, r, v) {
+  const seed = `${v.code}:${r.n}`, total = res.total, n = res.counts[names[0].id] || 0;
+  const fill = (t) => t.replace(/\{name\}/g, names.map((p) => p.name).join(' + ')).replace(/\{n\}/g, n).replace(/\{total\}/g, total);
+  if (names.length > 1) return { l1: `${names.map((p) => p.name).join(' + ')} — ${n} vote kol we7ed`, l2: fill(detPick(ROASTS.tie, seed + 'x')) };
+  const tier = total >= 3 && n === total ? 'unanimous' : n * 10 >= total * 6 ? 'majority' : 'few';
+  const catPool = (ROASTS.cat && ROASTS.cat[r.cat]) || [];
+  const pool = catPool.length && hashStr(seed + 'c') % 3 !== 0 ? catPool : ROASTS.general;
+  return { l1: fill(detPick(ROASTS[tier], seed + 't')), l2: fill(detPick(pool, seed + 'r')) };
+}
+function buildSpotlight(names, info, onClose) {
+  const tie = names.length > 1;
+  return h('div', { class: 'spot', onclick: onClose },
+    h('div', { class: `spot-av${tie ? ' multi' : ''}` }, names.map((p) => h('span', { class: 'sa' }, Av(p.avatar)))),
+    h('div', { class: 'spot-name' }, tie ? 'Ta3adol! 🤝' : [names[0].name, ' 👑']),
+    h('div', { class: 'spot-l1' }, info.l1),
+    h('div', { class: 'spot-l2' }, info.l2),
+    h('div', { class: 'spot-tap' }, 'tap bech tkammel 👆'));
+}
+
 /* ============================================================ REVEAL */
 function buildReveal() {
   const v = S.view, r = v.round, res = r.result, you = r.you;
@@ -491,11 +513,31 @@ function buildReveal() {
     else if (v2.you) ctrl.replaceChildren(h('p', { class: 'hint' }, 'Stanna el host yekmel… ⏳'));
     else ctrl.replaceChildren();
   }
+  const celebrate = (n) => { Sfx.boom(); later(() => { n > 1 ? Sfx.tie() : Sfx.win(); Confetti.burst(n > 1 ? 90 : 160); vibe([30, 40, 60]); }, 350); };
   const reveal = () => {
-    list.classList.add('shown'); $('.screen', $('#app')).classList.add('shown');
-    list.querySelectorAll('.fill').forEach((f) => { f.style.width = f.dataset.w + '%'; });
-    drum.remove(); verdictBox.replaceChildren(verdict());
-    if (res.winners.length) { Sfx.boom(); later(() => { res.winners.length > 1 ? Sfx.tie() : Sfx.win(); Confetti.burst(res.winners.length > 1 ? 90 : 160); vibe([30, 40, 60]); }, 350); }
+    list.classList.add('shown');
+    drum.remove();
+    const names = res.winners.map((id) => P(id)).filter(Boolean);
+    const setBars = (rowsToFill) => rowsToFill.forEach((x) => { const f = x.querySelector('.fill'); f.style.width = f.dataset.w + '%'; });
+    if (!(animate && names.length)) { // coming back to the page / nobody voted: show everything at once
+      setBars([...list.querySelectorAll('.rr')]); verdictBox.replaceChildren(verdict());
+      if (res.winners.length) celebrate(res.winners.length);
+      return;
+    }
+    // 1) the other players' votes pop in quickly, the winner is held back
+    const winRows = [...list.querySelectorAll('.rr.win')], others = [...list.querySelectorAll('.rr:not(.win)')];
+    winRows.forEach((x) => x.classList.add('hold'));
+    others.forEach((x, i) => { x.querySelector('.cnt').style.animationDelay = `${i * 220}ms`; });
+    setBars(others);
+    // 2) spotlight on the winner with the "voted by N friends" line and a roast
+    later(() => {
+      let closed = false;
+      const close = () => { if (closed) return; closed = true; spot.remove(); winRows.forEach((x) => x.classList.remove('hold')); setBars(winRows); verdictBox.replaceChildren(verdict()); };
+      const spot = buildSpotlight(names, roastFor(names, res, r, v), close);
+      document.body.append(spot);
+      celebrate(names.length);
+      later(close, 8000);
+    }, others.length * 220 + 900);
   };
   const el = h('div', { class: 'screen' }, roundHeader(v), h('div', { class: 'qcard', style: 'padding:14px' }, h('h2', { style: 'font-size:18px' }, r.text)), drum, list, verdictBox, ctrl);
   if (animate) { Sfx.drum(); vibe(40); later(reveal, 2300); } else { later(() => { reveal(); }, 30); }
